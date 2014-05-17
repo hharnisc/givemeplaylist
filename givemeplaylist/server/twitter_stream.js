@@ -13,17 +13,20 @@ Meteor.setInterval(function() {
 	// TODO: use a collection observer
 	var pendingRequests = PlaylistRequest.find({processed: false});
 	pendingRequests.forEach(function(request) { 
-		getUserSentiment(request.username, function(err, score) {
-			if(!!err) {
-				console.error(err);
-			}
-			console.log(score);
-		});
-		getCurrentWeatherAtLocation(request.location.lat, request.location.lon, function(err, weather) {
-			if(!!err) {
-				console.error(err);
-			}
-			console.log(weather);
-		})
+		// getUserSentiment(request.username, function(err, score) {
+		// 	if(!!err) {
+		// 		console.error(err);
+		// 	}
+		// 	console.log(score);
+		// });
+		// getRelatedArtistIds(request.artist, function(err, artists) {
+		// 	console.log(artists);
+		// });
+		// getCurrentWeatherAtLocation(request.location.lat, request.location.lon, function(err, weather) {
+		// 	if(!!err) {
+		// 		console.error(err);
+		// 	}
+		// 	console.log(weather);
+		// })
 	});
-}, 10000);
+}, 5000);

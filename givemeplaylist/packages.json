@@ -1,4 +1,5 @@
 {
 	"sentiment": "1.0.0-alpha",
-	"forecast.io": "0.0.8"
+	"forecast.io": "0.0.8",
+	"echojs": "0.1.4"
 }
