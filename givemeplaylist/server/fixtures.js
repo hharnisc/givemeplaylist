@@ -1,11 +1,11 @@
 if (PlaylistRequest.find().count() === 0) {
 	PlaylistRequest.insert({
-		artist: 'Dan Croll',
+		artist: 'Radiohead',
 		username: 'harrisonplaylis',
 		timestamp: new Date(),
 		location: {
-			lat: 44.2927839,
-			lon: -88.41006552
+			lat: 37.782225,
+			lon: -122.391205
 		},
 		processed: false
 	});
