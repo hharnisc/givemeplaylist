@@ -45,7 +45,7 @@ getRelatedArtistIds = function(artistId, cb) {
 getPlaylist = function(artistId, results, targetValence, targetEnergy, minEnergy, maxEnergy, targetDanceability, minDanceability, maxDanceability, cb) {
 	echo('playlist/static').get({
 		artist_id: artistId,
-		results: results,
+		results: results * 2,
 		target_valence: targetValence,
 		target_energy: targetEnergy,
 		min_energy: minEnergy,
@@ -53,12 +53,19 @@ getPlaylist = function(artistId, results, targetValence, targetEnergy, minEnergy
 		target_danceability: targetDanceability,
 		min_danceability: minDanceability,
 		max_danceability: maxDanceability,
-		song_selection: "song_hotttnesss"
+		song_selection: "song_hotttnesss",
+		bucket: ["id:spotify-US", "tracks" ],
 	}, function(err, data) {
 		if (!!err) {
 			cb(err, undefined);
 			return;
 		}
-		cb(undefined, data.response.songs);
+		var songs = [];
+		_.forEach(data.response.songs, function(song) {
+			if (songs.length < 10 && song.tracks.length){
+				songs.push(song.tracks[0].foreign_id.replace('spotify-US:track:', ''))
+			}
+		});
+		cb(undefined, songs);
 	});
 };
