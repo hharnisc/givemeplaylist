@@ -19,14 +19,33 @@ Meteor.setInterval(function() {
 		// 	}
 		// 	console.log(score);
 		// });
-		// getRelatedArtistIds(request.artist, function(err, artists) {
-		// 	console.log(artists);
-		// });
 		// getCurrentWeatherAtLocation(request.location.lat, request.location.lon, function(err, weather) {
 		// 	if(!!err) {
 		// 		console.error(err);
 		// 	}
 		// 	console.log(weather);
 		// })
+		getArtistId(request.artist, function(err, artist) {
+			if(!!err) {
+				console.error(err);
+				return;
+			}
+			getRelatedArtistIds(artist, function(err, artists) {
+				if(!!err) {
+					console.error(err);
+					return;
+				}
+				
+				var artistList = artists;
+				artistList.push(artist);
+				getPlaylist(artistList, 10, 0.1, function(err, songs) {
+					if(!!err) {
+						console.error(err);
+						return;
+					}
+					console.log(songs);
+				});
+			});	
+		});
 	});
-}, 5000);
+}, 3000);

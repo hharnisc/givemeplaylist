@@ -3,13 +3,31 @@ var echo = echojs({
 	key: Meteor.settings.echonestApiKey
 });
 
+getArtistId = function(artist, cb) {
+	echo('artist/search').get({
+		name: artist,
+		results: 1
+	}, function(err, data) {
+		if(!!err) {
+			cb(err, undefined);
+			return;
+		}
+		var artists = data.response.artists;
+		if (artists.length < 1) {
+			cb('Could not find artist', undefined);
+		}
+		cb(undefined, artists[0].id);
+	});
+};
 
-getRelatedArtistIds = function(artist, cb) {
+
+getRelatedArtistIds = function(artistId, cb) {
 	// callback return values - error, artist ids
 	// note: this returns 15 artists by default
 	//       to get more the param is `results`	
 	echo('artist/similar').get({
-		'name': artist
+		id: artistId,
+		results: 4
 	}, function(err, data) {
 		if (!!err) {
 			cb(err, undefined);
@@ -20,5 +38,21 @@ getRelatedArtistIds = function(artist, cb) {
 			artistIds.push(artist.id);
 		})
 		cb(undefined, artistIds);
+	});
+};
+
+
+getPlaylist = function(artistId, results, targetValence, cb) {
+	echo('playlist/static').get({
+		artist_id: artistId,
+		results: results,
+		target_valence: targetValence,
+		song_selection: "song_hotttnesss"
+	}, function(err, data) {
+		if (!!err) {
+			cb(err, undefined);
+			return;
+		}
+		cb(undefined, data.response.songs);
 	});
 };
