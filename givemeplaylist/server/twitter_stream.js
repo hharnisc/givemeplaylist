@@ -6,46 +6,69 @@ twit = new TwitMaker({
 });
 
 Meteor.startup(function () {
-
-});
-
-Meteor.setInterval(function() {
 	// TODO: use a collection observer
 	var pendingRequests = PlaylistRequest.find({processed: false});
 	pendingRequests.forEach(function(request) { 
-		// getUserSentiment(request.username, function(err, score) {
+		var sentiment, weather, artistList;
+		getUserSentiment(request.username, function(err, score) {
+			if(!!err) {
+				console.error(err);
+			}
+			sentiment = score;
+			generatePlaylist(sentiment, weather, artistList);
+		});
+		weather = "clear-day";
+		// getCurrentWeatherAtLocation(request.location.lat, request.location.lon, function(err, locWeather) {
 		// 	if(!!err) {
 		// 		console.error(err);
 		// 	}
-		// 	console.log(score);
+		// 	weather = locWeather;
+		// 	generatePlaylist(sentiment, weather, artistList);
 		// });
-		// getCurrentWeatherAtLocation(request.location.lat, request.location.lon, function(err, weather) {
-		// 	if(!!err) {
-		// 		console.error(err);
-		// 	}
-		// 	console.log(weather);
-		// })
 		getArtistId(request.artist, function(err, artist) {
 			if(!!err) {
 				console.error(err);
 				return;
 			}
-			getRelatedArtistIds(artist, function(err, artists) {
+			getRelatedArtistIds(artist, function(err, locArtists) {
 				if(!!err) {
 					console.error(err);
 					return;
 				}
 				
-				var artistList = artists;
-				artistList.push(artist);
-				getPlaylist(artistList, 10, 0.1, function(err, songs) {
-					if(!!err) {
-						console.error(err);
-						return;
-					}
-					console.log(songs);
-				});
-			});	
+				var locArtistList = locArtists;
+				locArtistList.push(artist);
+				artistList = locArtistList;
+				generatePlaylist(sentiment, weather, artistList);
+			});
 		});
 	});
-}, 3000);
+});
+
+var generatePlaylist = function(sentiment, weather, artistList) {
+	if(!sentiment || !weather || !artistList) {
+		console.log('Still waiting.');
+		return;
+	}
+	console.log('DONE!');
+	var valence = valenceGenerator(sentiment);
+	var dAndE = danceabilityAndEnergySelector(weather);
+	getPlaylist(
+		artistList, 
+		10,
+		valence,
+		dAndE.energyTarget,
+		dAndE.energyMin,
+		dAndE.energyMax,
+		dAndE.danceabilityTarget,
+		dAndE.danceabilityMin,
+		dAndE.danceabilityMax,
+		function(err, songs) {
+			if(!!err) {
+				console.error(err);
+				return;
+			}
+			console.log(songs);
+	});
+
+}

@@ -42,11 +42,17 @@ getRelatedArtistIds = function(artistId, cb) {
 };
 
 
-getPlaylist = function(artistId, results, targetValence, cb) {
+getPlaylist = function(artistId, results, targetValence, targetEnergy, minEnergy, maxEnergy, targetDanceability, minDanceability, maxDanceability, cb) {
 	echo('playlist/static').get({
 		artist_id: artistId,
 		results: results,
 		target_valence: targetValence,
+		target_energy: targetEnergy,
+		min_energy: minEnergy,
+		max_energy: maxEnergy,
+		target_danceability: targetDanceability,
+		min_danceability: minDanceability,
+		max_danceability: maxDanceability,
 		song_selection: "song_hotttnesss"
 	}, function(err, data) {
 		if (!!err) {

@@ -1,4 +1,4 @@
-var valenceGenerator = function(sentimentScore) {
+valenceGenerator = function(sentimentScore) {
 		var valence = 0;
 		if (sentimentScore < 40 && sentimentScore > -40) {
 			valence = sentimentScore + 40;
@@ -10,7 +10,7 @@ var valenceGenerator = function(sentimentScore) {
 		return valence;
 }
 
-var danceabilityAndEnergySelector = function(weather) {
+danceabilityAndEnergySelector = function(weather) {
 	var danceabilityMax = 1.0;
 	var danceabilityMin = 0.0;
 	var danceabilityTarget = 0.0;
@@ -76,5 +76,3 @@ var danceabilityAndEnergySelector = function(weather) {
 		energyTarget: energyTarget
 	}
 }
-var weather = 'rain';
-console.log(danceabilityAndEnergySelector(weather));

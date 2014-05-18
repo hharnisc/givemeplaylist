@@ -1,6 +1,6 @@
 if (PlaylistRequest.find().count() === 0) {
 	PlaylistRequest.insert({
-		artist: 'Radiohead',
+		artist: 'Bombay Bicycle Club',
 		username: 'harrisonplaylis',
 		timestamp: new Date(),
 		location: {
