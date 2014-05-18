@@ -14,3 +14,25 @@ getUserSentiment = function(username, cb) {
 		cb(undefined, totalScore);
 	});
 };
+
+parseArtist = function(message) {
+	return message.toLowerCase().replace('@' + Meteor.settings.twitterUsername.toLowerCase() + ' ', '');
+};
+
+tweetCouldNotFindArtist = function(username) {
+	tweetToUser(username, 'Sorry we couldn\'t find that artist');
+};
+
+tweetPlaylistToUser = function(username, artist, url) {
+	var message = 'here\'s your playlist for ' + artist + ' ' + url;
+	tweetToUser(username, message);
+};
+
+tweetToUser = function(username, message) {
+	twit.post('statuses/update', { status: '.@' + username + ' ' + message }, function(err, reply) {
+		if (!!err) {
+			console.error(err);
+		}
+		console.log("tweet sent to " + username);
+	});
+};

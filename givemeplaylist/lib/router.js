@@ -1,15 +1,20 @@
 Router.configure({
   layoutTemplate: 'layout',
-  loadingTemplate: 'loading',
-  // waitOn: function() { 
-  //   return [Meteor.subscribe('notifications')]
-  // }
+  loadingTemplate: 'loading'
 });
 
 Router.map(function() {
 	this.route('home', {
 		path: '/',
-		template: 'home'
+		template: 'home',
+		waitOn: function() {
+			return Meteor.subscribe('recentPlaylistRequests');
+		},
+		data: function() {
+			return {
+				playlistRequests: PlaylistRequest.find({}, {sort: {timestamp: -1}, limit: 20})
+			}
+		}
 	});
 
 	this.route('playlist', {

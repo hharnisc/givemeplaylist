@@ -1,3 +1,7 @@
 <template name="home">
-	HOME
+	<div class="playlistRequests">
+		{{#each playlistRequests}}
+	    	{{> playlistRequest}}
+	    {{/each}}
+    </div>
 </template>

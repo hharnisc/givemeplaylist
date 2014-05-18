@@ -15,6 +15,7 @@ getArtistId = function(artist, cb) {
 		var artists = data.response.artists;
 		if (artists.length < 1) {
 			cb('Could not find artist', undefined);
+			return;
 		}
 		cb(undefined, artists[0].id);
 	});
@@ -43,9 +44,10 @@ getRelatedArtistIds = function(artistId, cb) {
 
 
 getPlaylist = function(artistId, results, targetValence, targetEnergy, minEnergy, maxEnergy, targetDanceability, minDanceability, maxDanceability, cb) {
+	console.log(artistId, results, targetValence, targetEnergy, minEnergy, maxEnergy, targetDanceability, minDanceability, maxDanceability);
 	echo('playlist/static').get({
 		artist_id: artistId,
-		results: results * 2,
+		results: results * 3,
 		target_valence: targetValence,
 		target_energy: targetEnergy,
 		min_energy: minEnergy,
@@ -55,6 +57,9 @@ getPlaylist = function(artistId, results, targetValence, targetEnergy, minEnergy
 		max_danceability: maxDanceability,
 		song_selection: "song_hotttnesss",
 		bucket: ["id:spotify-US", "tracks" ],
+		variety: 1.0,
+		adventurousness: 0.5,
+		distribution: "wandering" 
 	}, function(err, data) {
 		if (!!err) {
 			cb(err, undefined);

@@ -1,0 +1,12 @@
+<template name="playlistRequest">
+	<a href="/playlist/{{playlistId}}/" target="_blank">
+		<div class="playlistRequest">
+			<!-- Background should be an artist image -->
+			<img src="{{profilePic}}" height="60" width="60">
+			<div class="playlistRequestBody">
+				<a href="https://twitter.com/{{username}}">@{{username}}</a>
+				<div class="artist">{{artist}}</div>
+			</div>
+		</div>
+	</a>
+</template>
