@@ -9,13 +9,15 @@ twit = new TwitMaker({
 Meteor.startup(function () {
 	var stream = twit.stream('user');
 	stream.on('tweet', function(tweet) {
-		if (tweet.user.screen_name === Meteor.settings.twitterUsername) {
+		if (tweet.user.screen_name === Meteor.settings.twitterUsername ||
+			tweet.retweeted || tweet.text.split("@").length - 1 > 1) {
+			console.log('ignoring tweet ', tweet.text);
 			return;
 		}
 		var message = tweet.text;
 		var username = tweet.user.screen_name;
 		var profilePic = tweet.user.profile_image_url_https;
-		var artist = parseArtist(message);
+		var tweetId = tweet.id_str;
 
 		// default is SF (for now)
 		var lat = 37.782225;
@@ -26,20 +28,28 @@ Meteor.startup(function () {
 			lon = coords[1];
 			console.log(lat, lon);
 		}
-		
-		Fiber(function() {
-			PlaylistRequest.insert({
-				artist: artist,
-				username: username,
-				profilePic: profilePic,
-				timestamp: new Date(),
-				location: {
-					lat: 37.782225,
-					lon: -122.391205
-				},
-				processed: false
-			});
-		}).run();
+
+		getArtistNameAndIdFromTweet(message, function(err, data) {
+			if (!!err) {
+				tweetCouldNotFindArtist(username, tweetId);
+				return;
+			}
+			Fiber(function() {
+				PlaylistRequest.insert({
+					artist: data.name,
+					artistId: data.id,
+					username: username,
+					profilePic: profilePic,
+					timestamp: new Date(),
+					location: {
+						lat: 37.782225,
+						lon: -122.391205
+					},
+					processed: false,
+					tweetId: tweetId
+				});
+			}).run();
+		});
 	});
 
 	PlaylistRequest.find({processed: false}).observe({
@@ -53,7 +63,15 @@ Meteor.startup(function () {
 					console.error(err);
 				}
 				sentiment = score;
-				generatePlaylist(request._id, request.username, request.artist, sentiment, weather, artistList);
+				generatePlaylist(
+					request._id, 
+					request.username,
+					request.tweetId,
+					request.artist,
+					sentiment,
+					weather,
+					artistList
+				);
 			});
 			weather = "sleet";
 			// getCurrentWeatherAtLocation(request.location.lat, request.location.lon, function(err, locWeather) {
@@ -61,45 +79,46 @@ Meteor.startup(function () {
 			// 		console.error(err);
 			// 	}
 			// 	weather = locWeather;
-			// 	generatePlaylist(request._id, request.username, request.artist, sentiment, weather, artistList);
+			// 	generatePlaylist(
+			// 		request._id, 
+			// 		request.username,
+			// 		request.tweetId,
+			// 		request.artist,
+			// 		sentiment,
+			// 		weather,
+			// 		artistList
+			// );
 			// });
-			getArtistId(request.artist, function(err, artist) {
+			
+			getRelatedArtistIds(request.artistId, function(err, locArtists) {
 				if(!!err) {
 					console.error(err);
-					tweetCouldNotFindArtist(request.username);
 					return;
 				}
-				getRelatedArtistIds(artist, function(err, locArtists) {
-					if(!!err) {
-						console.error(err);
-						return;
-					}
-					
-					var locArtistList = locArtists;
-					locArtistList.push(artist);
-					artistList = locArtistList;
-					generatePlaylist(request._id, request.username, request.artist, sentiment, weather, artistList);
-				});
+				
+				var locArtistList = locArtists;
+				locArtistList.push(request.artistId);
+				artistList = locArtistList;
+				generatePlaylist(
+					request._id, 
+					request.username,
+					request.tweetId,
+					request.artist,
+					sentiment,
+					weather,
+					artistList
+				);
 			});
     	}
 	});
 });
 
-var generatePlaylist = function(requestId, username, artist, sentiment, weather, artistList) {
+var generatePlaylist = function(requestId, username, tweetId, artist, sentiment, weather, artistList) {
 	if(!sentiment || !weather || !artistList) {
 		return;
 	}
 	var valence = valenceGenerator(sentiment);
 	var dAndE = danceabilityAndEnergySelector(weather);
-	console.log(
-		10,
-		valence,
-		dAndE.energyTarget,
-		dAndE.energyMin,
-		dAndE.energyMax,
-		dAndE.danceabilityTarget,
-		dAndE.danceabilityMin,
-		dAndE.danceabilityMax);
 	getPlaylist(
 		artistList, 
 		10,
@@ -122,7 +141,12 @@ var generatePlaylist = function(requestId, username, artist, sentiment, weather,
 				});
 				// mark the playlist request as processed
 				PlaylistRequest.update(requestId, {$set: {processed: true, playlistId: playlistId}});
-				tweetPlaylistToUser(username, artist, Meteor.settings.hostname + '/playlist/' + playlistId + '/');
+				tweetPlaylistToUser(
+					username,
+					artist, 
+					Meteor.settings.hostname + '/playlist/' + playlistId + '/', 
+					tweetId
+				);
 				console.log('Processed request: ' + requestId);
 			}).run();
 	});

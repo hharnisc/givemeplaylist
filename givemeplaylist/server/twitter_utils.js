@@ -19,17 +19,24 @@ parseArtist = function(message) {
 	return message.toLowerCase().replace('@' + Meteor.settings.twitterUsername.toLowerCase() + ' ', '');
 };
 
-tweetCouldNotFindArtist = function(username) {
-	tweetToUser(username, 'Sorry we couldn\'t find that artist');
+removeUsernames = function(message) {
+	return message.replace(/(@[A-Za-z0-9\_]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)/, '');
+}
+
+tweetCouldNotFindArtist = function(username, inReplyToId) {
+	replyToUser(username, 'Sorry we couldn\'t find that artist', inReplyToId);
 };
 
-tweetPlaylistToUser = function(username, artist, url) {
+tweetPlaylistToUser = function(username, artist, url, inReplyToId) {
 	var message = 'here\'s your playlist for ' + artist + ' ' + url;
-	tweetToUser(username, message);
+	replyToUser(username, message, inReplyToId);
 };
 
-tweetToUser = function(username, message) {
-	twit.post('statuses/update', { status: '@' + username + ' ' + message }, function(err, reply) {
+replyToUser = function(username, message, inReplyToId) {
+	twit.post('statuses/update', {
+		status: '@' + username + ' ' + message,
+		in_reply_to_status_id: inReplyToId
+	}, function(err, reply) {
 		if (!!err) {
 			console.error(err);
 		}

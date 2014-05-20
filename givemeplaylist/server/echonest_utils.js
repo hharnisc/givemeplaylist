@@ -3,6 +3,29 @@ var echo = echojs({
 	key: Meteor.settings.echonestApiKey
 });
 
+getArtistNameAndIdFromTweet = function(tweetText, cb){
+	var processedText = removeUsernames(tweetText);
+	console.log(processedText)
+	echo('artist/extract').get({
+		text: processedText,
+		results: 1
+	}, function(err, data) {
+		if(!!err) {
+			cb(err, undefined);
+			return;
+		}
+		var artists = data.response.artists;
+		if (artists.length < 1) {
+			getArtistId(processedText.trim(), cb);
+		} else {
+			cb(undefined, {
+				name: artists[0].name,
+				id: artists[0].id
+			});	
+		}		
+	});
+};
+
 getArtistId = function(artist, cb) {
 	echo('artist/search').get({
 		name: artist,
@@ -17,7 +40,10 @@ getArtistId = function(artist, cb) {
 			cb('Could not find artist', undefined);
 			return;
 		}
-		cb(undefined, artists[0].id);
+		cb(undefined, {
+			name: artists[0].name,
+			id: artists[0].id
+		});
 	});
 };
 
@@ -44,7 +70,6 @@ getRelatedArtistIds = function(artistId, cb) {
 
 
 getPlaylist = function(artistId, results, targetValence, targetEnergy, minEnergy, maxEnergy, targetDanceability, minDanceability, maxDanceability, cb) {
-	console.log(artistId, results, targetValence, targetEnergy, minEnergy, maxEnergy, targetDanceability, minDanceability, maxDanceability);
 	echo('playlist/static').get({
 		artist_id: artistId,
 		results: results * 3,
@@ -57,9 +82,10 @@ getPlaylist = function(artistId, results, targetValence, targetEnergy, minEnergy
 		max_danceability: maxDanceability,
 		song_selection: "song_hotttnesss",
 		bucket: ["id:spotify-US", "tracks" ],
-		variety: 0.5,
+		variety: 1.0,
 		adventurousness: 0.2,
-		distribution: "wandering" 
+		sort: "song_hotttnesss-desc",
+		distribution: "wandering"
 	}, function(err, data) {
 		if (!!err) {
 			cb(err, undefined);

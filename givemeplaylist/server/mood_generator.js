@@ -1,12 +1,16 @@
 valenceGenerator = function(sentimentScore) {
+		console.log(sentimentScore);
 		var valence = 0;
-		if (sentimentScore < 40 && sentimentScore > -40) {
-			valence = sentimentScore + 40;
-			valence = valence / 80;
+		var bound = 25;
+		var lowerBound = bound * -1;
+		if (sentimentScore < bound && sentimentScore > lowerBound) {
+			valence = sentimentScore + bound;
+			valence = valence / (bound * 2);
 		}
-		else if (sentimentScore >= 40) {
+		else if (sentimentScore >= bound) {
 			valence = 1;
 		}
+		console.log(valence);
 		return valence;
 }
 
