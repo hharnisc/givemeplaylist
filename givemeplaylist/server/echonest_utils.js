@@ -57,8 +57,8 @@ getPlaylist = function(artistId, results, targetValence, targetEnergy, minEnergy
 		max_danceability: maxDanceability,
 		song_selection: "song_hotttnesss",
 		bucket: ["id:spotify-US", "tracks" ],
-		variety: 1.0,
-		adventurousness: 0.5,
+		variety: 0.5,
+		adventurousness: 0.2,
 		distribution: "wandering" 
 	}, function(err, data) {
 		if (!!err) {

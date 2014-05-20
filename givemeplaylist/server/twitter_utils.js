@@ -29,7 +29,7 @@ tweetPlaylistToUser = function(username, artist, url) {
 };
 
 tweetToUser = function(username, message) {
-	twit.post('statuses/update', { status: '.@' + username + ' ' + message }, function(err, reply) {
+	twit.post('statuses/update', { status: '@' + username + ' ' + message }, function(err, reply) {
 		if (!!err) {
 			console.error(err);
 		}
