@@ -11,7 +11,7 @@ Meteor.startup(function () {
 	stream.on('tweet', function(tweet) {
 		if (tweet.user.screen_name === Meteor.settings.twitterUsername ||
 			tweet.retweeted || tweet.text.split("@").length - 1 > 1) {
-			console.log('ignoring tweet ', tweet.text);
+			// console.log('ignoring tweet ', tweet.text);
 			return;
 		}
 		var message = tweet.text;

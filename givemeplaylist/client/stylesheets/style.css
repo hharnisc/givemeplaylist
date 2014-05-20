@@ -34,7 +34,8 @@ body {
 
 .playlistRequest {
 	background: rgb(48, 48, 48);
-	width: 500px;
+	width: 80%;
+	max-width: 500px;
 	margin: 15px auto;
 	padding: 20px;
 	text-align: left;

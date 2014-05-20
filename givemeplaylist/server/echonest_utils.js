@@ -8,6 +8,7 @@ getArtistNameAndIdFromTweet = function(tweetText, cb){
 	console.log(processedText)
 	echo('artist/extract').get({
 		text: processedText,
+		sort: "hotttnesss-desc",
 		results: 1
 	}, function(err, data) {
 		if(!!err) {
